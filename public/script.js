@@ -1,6 +1,3 @@
-// =====================
-// Element References
-// =====================
 const analyzeBtn = document.getElementById("analyzeBtn");
 const messageInput = document.getElementById("messageInput");
 const resultBox = document.getElementById("resultBox");
@@ -72,4 +69,5 @@ function logIncident(r) {
   div.className = "log-item";
   div.innerHTML = `<strong>${time}</strong><br>${r.type} | Risk: ${r.score}`;
   incidentList.prepend(div);
+
 }
