@@ -1,5 +1,5 @@
 const express = require("express");
-const detectScam = require("./scamDetector");
+const detectScam = require("./scamdetector");
 const logIncident = require("./logger");
 
 const app = express();
@@ -21,4 +21,5 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
+
 });
