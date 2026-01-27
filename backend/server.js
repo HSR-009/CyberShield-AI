@@ -23,9 +23,20 @@ app.use(session({
 }));
 
 /* =========================
-   STATIC FILES (FIRST)
+   ABSOLUTE PATH TO PUBLIC
 ========================= */
-app.use(express.static(path.join(__dirname, "../public")));
+const publicPath = path.join(__dirname, "..", "public");
+app.use(express.static(publicPath));
+
+/* =========================
+   ROOT → LOGIN
+========================= */
+app.get("/", (req, res) => {
+  if (!req.session.user) {
+    return res.sendFile(path.join(publicPath, "login.html"));
+  }
+  res.sendFile(path.join(publicPath, "index.html"));
+});
 
 /* =========================
    AUTH ROUTES
@@ -38,10 +49,9 @@ app.post("/api/logout", (req, res) => {
 });
 
 /* =========================
-   PROTECT PAGES
+   PAGE PROTECTION
 ========================= */
 app.use((req, res, next) => {
-  // Allow login page & assets
   if (
     req.path === "/login.html" ||
     req.path.startsWith("/api") ||
@@ -86,12 +96,7 @@ app.get("/api/logs", (req, res) => {
     return res.status(401).json({ error: "Not authenticated" });
   }
 
-  const logFile = path.join(
-    __dirname,
-    "logs",
-    `${req.session.user.id}.log`
-  );
-
+  const logFile = path.join(__dirname, "logs", `${req.session.user.id}.log`);
   if (!fs.existsSync(logFile)) return res.json([]);
 
   const lines = fs.readFileSync(logFile, "utf-8").trim().split("\n");
@@ -117,4 +122,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
 });
-
