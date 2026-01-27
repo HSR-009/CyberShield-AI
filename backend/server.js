@@ -3,7 +3,7 @@ const session = require("express-session");
 const fs = require("fs");
 const path = require("path");
 
-const detectScam = require("./scamdetector");
+const detectScam = require("./scamDetector");
 const logIncident = require("./logger");
 const auth = require("./auth");
 
@@ -11,11 +11,21 @@ const app = express();
 
 app.use(express.json());
 
+app.set("trust proxy", 1);
+
 app.use(session({
-  secret: "cybershield-secret",
+  secret: process.env.SESSION_SECRET || "cybershield-secret",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production"
+  }
 }));
+
+/* =========================
+   STATIC FILES (FIRST)
+========================= */
+app.use(express.static(path.join(__dirname, "../public")));
 
 /* =========================
    AUTH ROUTES
@@ -31,19 +41,28 @@ app.post("/api/logout", (req, res) => {
    PROTECT PAGES
 ========================= */
 app.use((req, res, next) => {
+  // Allow login page & assets
   if (
+    req.path === "/login.html" ||
     req.path.startsWith("/api") ||
-    req.path === "/login.html"
-  ) return next();
+    req.path.includes(".css") ||
+    req.path.includes(".js") ||
+    req.path.includes(".png") ||
+    req.path.includes(".jpg") ||
+    req.path.includes(".svg")
+  ) {
+    return next();
+  }
 
   if (!req.session.user) {
     return res.redirect("/login.html");
   }
+
   next();
 });
 
 /* =========================
-   ANALYZE MESSAGE
+   ANALYZE API
 ========================= */
 app.post("/api/analyze", (req, res) => {
   if (!req.session.user) {
@@ -60,7 +79,7 @@ app.post("/api/analyze", (req, res) => {
 });
 
 /* =========================
-   LOAD USER LOG HISTORY
+   LOAD USER LOGS
 ========================= */
 app.get("/api/logs", (req, res) => {
   if (!req.session.user) {
@@ -73,9 +92,7 @@ app.get("/api/logs", (req, res) => {
     `${req.session.user.id}.log`
   );
 
-  if (!fs.existsSync(logFile)) {
-    return res.json([]);
-  }
+  if (!fs.existsSync(logFile)) return res.json([]);
 
   const lines = fs.readFileSync(logFile, "utf-8").trim().split("\n");
 
@@ -94,12 +111,9 @@ app.get("/api/logs", (req, res) => {
 });
 
 /* =========================
-   STATIC FILES
+   START SERVER
 ========================= */
-app.use(express.static("public"));
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
 });
-
