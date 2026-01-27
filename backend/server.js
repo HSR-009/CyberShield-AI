@@ -25,7 +25,7 @@ app.use(session({
 /* =========================
    ABSOLUTE PATH TO PUBLIC
 ========================= */
-const publicPath = path.join(__dirname, "..", "public");
+const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
 /* =========================
@@ -122,3 +122,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
 });
+
