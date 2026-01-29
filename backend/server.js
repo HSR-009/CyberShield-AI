@@ -10,19 +10,12 @@ const auth = require("./auth");
 
 const app = express();
 
+/* =========================
+   BASIC SETUP
+========================= */
 app.set("trust proxy", 1);
 app.use(express.json());
 app.use(cookieParser());
-
-/* =========================
-   FORCE HTTPS (RENDER)
-========================= */
-app.use((req, res, next) => {
-  if (req.headers["x-forwarded-proto"] !== "https") {
-    return res.redirect(`https://${req.headers.host}${req.url}`);
-  }
-  next();
-});
 
 /* =========================
    STATIC FILES
@@ -31,32 +24,38 @@ const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
 /* =========================
-   AUTH MIDDLEWARE
+   AUTH MIDDLEWARE (API ONLY)
 ========================= */
 function requireAuth(req, res, next) {
   const token = req.cookies.token;
-  if (!token) return res.redirect("/login.html");
+  if (!token) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
 
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch {
-    return res.redirect("/login.html");
+    return res.status(401).json({ error: "Invalid token" });
   }
 }
 
 /* =========================
-   ROOT
+   ROOT ROUTE
 ========================= */
 app.get("/", (req, res) => {
   const token = req.cookies.token;
-  if (!token) return res.sendFile(path.join(publicPath, "login.html"));
+
+  if (!token) {
+    return res.sendFile(path.join(publicPath, "login.html"));
+  }
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
-    res.sendFile(path.join(publicPath, "index.html"));
+    return res.sendFile(path.join(publicPath, "index.html"));
   } catch {
-    res.sendFile(path.join(publicPath, "login.html"));
+    res.clearCookie("token");
+    return res.sendFile(path.join(publicPath, "login.html"));
   }
 });
 
@@ -93,16 +92,18 @@ app.get("/api/logs", requireAuth, (req, res) => {
 
   const lines = fs.readFileSync(logFile, "utf-8").trim().split("\n");
 
-  const logs = lines.map(line => {
-    const match = line.match(/\[(.*?)\]\s(.+?)\s\|\sScore:\s(\d+)/);
-    if (!match) return null;
+  const logs = lines
+    .map(line => {
+      const match = line.match(/\[(.*?)\]\s(.+?)\s\|\sScore:\s(\d+)/);
+      if (!match) return null;
 
-    return {
-      time: new Date(match[1]).toLocaleTimeString(),
-      type: match[2],
-      score: Number(match[3])
-    };
-  }).filter(Boolean);
+      return {
+        time: new Date(match[1]).toLocaleTimeString(),
+        type: match[2],
+        score: Number(match[3])
+      };
+    })
+    .filter(Boolean);
 
   res.json(logs);
 });
