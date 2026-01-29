@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
 };
 
 /* =========================
-   GUEST
+   GUEST LOGIN
 ========================= */
 exports.guest = (req, res) => {
   const user = {
