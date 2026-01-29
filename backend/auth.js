@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const usersFile = path.join(__dirname, "users.json");
 
@@ -13,6 +14,24 @@ function saveUsers(users) {
   fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
 }
 
+function issueToken(res, user) {
+  const token = jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: "2h" }
+  );
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 2
+  });
+}
+
+/* =========================
+   SIGNUP
+========================= */
 exports.signup = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -34,10 +53,13 @@ exports.signup = async (req, res) => {
   users.push(user);
   saveUsers(users);
 
-  req.session.user = { id: user.id, email: user.email };
+  issueToken(res, user);
   res.json({ success: true });
 };
 
+/* =========================
+   LOGIN
+========================= */
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   const users = loadUsers();
@@ -48,15 +70,19 @@ exports.login = async (req, res) => {
   const ok = await bcrypt.compare(password, user.passwordHash);
   if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-  req.session.user = { id: user.id, email: user.email };
+  issueToken(res, user);
   res.json({ success: true });
 };
 
+/* =========================
+   GUEST
+========================= */
 exports.guest = (req, res) => {
-  req.session.user = {
+  const user = {
     id: `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`,
     email: "guest"
   };
+
+  issueToken(res, user);
   res.json({ success: true });
 };
-
