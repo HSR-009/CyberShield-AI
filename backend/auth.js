@@ -54,8 +54,9 @@ exports.login = async (req, res) => {
 
 exports.guest = (req, res) => {
   req.session.user = {
-    id: `guest_${Date.now()}`,
+    id: `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`,
     email: "guest"
   };
   res.json({ success: true });
 };
+
