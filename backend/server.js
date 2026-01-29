@@ -9,27 +9,49 @@ const auth = require("./auth");
 
 const app = express();
 
+/* =========================
+   BASIC SETUP
+========================= */
 app.use(express.json());
 
+// REQUIRED for Render / reverse proxy
 app.set("trust proxy", 1);
 
+/* =========================
+   FORCE HTTPS (RENDER FIX)
+========================= */
+app.use((req, res, next) => {
+  if (req.headers["x-forwarded-proto"] !== "https") {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
+/* =========================
+   SESSION (FIXED FOR RENDER)
+========================= */
 app.use(session({
-  secret: process.env.SESSION_SECRET || "cybershield-secret",
+  name: "cybershield.sid",
+  secret: process.env.SESSION_SECRET, // MUST be set in Render env
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
-    secure: process.env.NODE_ENV === "production"
+    httpOnly: true,
+    secure: true,        // REQUIRED
+    sameSite: "none",    // REQUIRED
+    maxAge: 1000 * 60 * 60 * 2 // 2 hours
   }
 }));
 
 /* =========================
-   ABSOLUTE PATH TO PUBLIC
+   STATIC FILES
 ========================= */
 const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
 /* =========================
-   ROOT → LOGIN
+   ROOT
 ========================= */
 app.get("/", (req, res) => {
   if (!req.session.user) {
@@ -55,11 +77,7 @@ app.use((req, res, next) => {
   if (
     req.path === "/login.html" ||
     req.path.startsWith("/api") ||
-    req.path.includes(".css") ||
-    req.path.includes(".js") ||
-    req.path.includes(".png") ||
-    req.path.includes(".jpg") ||
-    req.path.includes(".svg")
+    req.path.match(/\.(css|js|png|jpg|svg)$/)
   ) {
     return next();
   }
@@ -122,4 +140,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
 });
-
