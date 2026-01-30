@@ -8,6 +8,7 @@ const actionText = document.getElementById("actionText");
 const riskBadge = document.getElementById("riskBadge");
 const incidentList = document.getElementById("incidentList");
 const preAnalysis = document.getElementById("preAnalysis");
+document.body.style.display = "block";
 
 /* =========================
    LOAD LOG HISTORY ON LOGIN
@@ -132,3 +133,4 @@ function renderLog(log) {
 
   incidentList.prepend(div);
 }
+
