@@ -28,10 +28,6 @@ app.use(express.static(publicPath));
 ========================= */
 function requireAuth(req, res, next) {
   const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ error: "Not authenticated" });
-  }
-
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
@@ -47,17 +43,20 @@ app.get("/", (req, res) => {
   const token = req.cookies.token;
 
   if (!token) {
+    // Directly serve login page
     return res.sendFile(path.join(publicPath, "login.html"));
   }
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
+    // Only authenticated users get index.html
     return res.sendFile(path.join(publicPath, "index.html"));
   } catch {
     res.clearCookie("token");
     return res.sendFile(path.join(publicPath, "login.html"));
   }
 });
+
 
 /* =========================
    AUTH ROUTES
@@ -115,3 +114,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
 });
+
