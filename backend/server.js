@@ -39,21 +39,25 @@ function requireAuth(req, res, next) {
 /* =========================
    ROOT ROUTE
 ========================= */
+// ALWAYS show login page at start
 app.get("/", (req, res) => {
+  return res.sendFile(path.join(publicPath, "login.html"));
+});
+
+// Protected dashboard
+app.get("/dashboard", (req, res) => {
   const token = req.cookies.token;
 
   if (!token) {
-    // Directly serve login page
-    return res.sendFile(path.join(publicPath, "login.html"));
+    return res.redirect("/");
   }
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
-    // Only authenticated users get index.html
     return res.sendFile(path.join(publicPath, "index.html"));
   } catch {
     res.clearCookie("token");
-    return res.sendFile(path.join(publicPath, "login.html"));
+    return res.redirect("/");
   }
 });
 
@@ -114,4 +118,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
 });
+
 
