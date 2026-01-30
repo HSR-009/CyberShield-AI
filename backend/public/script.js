@@ -8,14 +8,13 @@ const actionText = document.getElementById("actionText");
 const riskBadge = document.getElementById("riskBadge");
 const incidentList = document.getElementById("incidentList");
 const preAnalysis = document.getElementById("preAnalysis");
-document.body.style.display = "block";
 
 /* =========================
    LOAD LOG HISTORY ON LOGIN
 ========================= */
-window.onload = () => {
+document.addEventListener("DOMContentLoaded", () => {
   loadPreviousLogs();
-};
+});
 
 async function loadPreviousLogs() {
   try {
@@ -74,9 +73,6 @@ analyzeBtn.onclick = async () => {
    RESULT + METER
 ========================= */
 function showResult(r) {
-  document.querySelector(".gauge-bar").style.background =
-    "linear-gradient(to right, #22c55e 0%, #22c55e 30%, #facc15 30%, #facc15 60%, #ef4444 60%, #ef4444 100%)";
-
   const pointer = document.getElementById("gaugePointer");
   const position = Math.min(Math.max(r.score, 0), 100);
   pointer.style.left = `calc(${position}% - 8px)`;
@@ -122,15 +118,11 @@ function renderLog(log) {
   const div = document.createElement("div");
 
   let riskClass = "low";
-  if (log.score >= 60) {
-    riskClass = "high";
-  } else if (log.score >= 30) {
-    riskClass = "medium";
-  }
+  if (log.score >= 60) riskClass = "high";
+  else if (log.score >= 30) riskClass = "medium";
 
   div.className = `log-item ${riskClass}`;
   div.innerHTML = `<strong>${log.time}</strong><br>${log.type} | Risk: ${log.score}`;
 
   incidentList.prepend(div);
 }
-
