@@ -18,9 +18,22 @@ app.use(express.json());
 app.use(cookieParser());
 
 /* =========================
-   STATIC FILES
+   STATIC FILES (PROTECTED)
 ========================= */
 const publicPath = path.join(__dirname, "public");
+
+/**
+ * 🔐 IMPORTANT FIX
+ * Prevent direct access to index.html
+ * Forces auth check via "/"
+ */
+app.use((req, res, next) => {
+  if (req.path === "/index.html") {
+    return res.redirect("/");
+  }
+  next();
+});
+
 app.use(express.static(publicPath));
 
 /* =========================
@@ -28,6 +41,10 @@ app.use(express.static(publicPath));
 ========================= */
 function requireAuth(req, res, next) {
   const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
@@ -37,19 +54,13 @@ function requireAuth(req, res, next) {
 }
 
 /* =========================
-   ROOT ROUTE
+   ROOT ROUTE (ENTRY POINT)
 ========================= */
-// ALWAYS show login page at start
 app.get("/", (req, res) => {
-  return res.sendFile(path.join(publicPath, "login.html"));
-});
-
-// Protected dashboard
-app.get("/dashboard", (req, res) => {
   const token = req.cookies.token;
 
   if (!token) {
-    return res.redirect("/");
+    return res.sendFile(path.join(publicPath, "login.html"));
   }
 
   try {
@@ -57,10 +68,9 @@ app.get("/dashboard", (req, res) => {
     return res.sendFile(path.join(publicPath, "index.html"));
   } catch {
     res.clearCookie("token");
-    return res.redirect("/");
+    return res.sendFile(path.join(publicPath, "login.html"));
   }
 });
-
 
 /* =========================
    AUTH ROUTES
@@ -118,5 +128,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CyberShield AI running on port ${PORT}`);
 });
-
-
