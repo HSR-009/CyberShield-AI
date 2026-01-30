@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CyberShield AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">🛡️</div>
+      <div>
+        <h1>CyberShield AI</h1>
+        <p>Scam & Fraud Risk Analyzer</p>
+      </div>
+    </div>
+    <div class="info-wrapper">
+  <span class="info-icon">i</span>
+  <div class="info-tooltip">
+    <strong>CyberShield AI</strong>
+    <p>
+      CyberShield AI is an intelligent message-analysis tool that uses
+      AI-guided security rules to interpret message content, assess scam risk,
+      and recommend safe actions before you respond.</p>
+    <p>It evaluates common fraud patterns such as impersonation, phishing links,
+       fake rewards, urgency pressure, and misuse of sensitive information
+       like OTPs or payment requests.</p>
+
+    <p>Each message is analyzed instantly and locally — messages are not stored,
+       tracked, or shared. This is done instantly to help you assess risk before acting.
+    </p>
+  </div>
+</div>
+    <!-- Logout button -->
+    <div class="header-actions">
+      <button id="logoutBtn" class="btn-logout">Logout</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="main-grid">
+
+      <!-- LEFT: Input + Log -->
+      <section class="analysis">
+
+        <label>Paste Message or Invoice</label>
+        <textarea
+          id="messageInput"
+          placeholder="Paste email, SMS, WhatsApp message, or invoice text here..."
+        ></textarea>
+
+        <button id="analyzeBtn">Analyze Risk</button>
+
+        <!-- Pre Analysis Cards -->
+        <div id="preAnalysis" class="pre-analysis">
+          <div class="criteria-cards">
+            <div class="card">🔐 Phishing</div>
+            <div class="card">💳 Payment Scam</div>
+            <div class="card">🧠 Social Engineering</div>
+            <div class="card">📄 Invoice Fraud</div>
+          </div>
+          <div class="safety-bar">
+            ⚠️ Always verify payment requests before proceeding
+          </div>
+        </div>
+
+        <!-- Incident Log -->
+        <div class="log compact-log">
+          <h3>Incident Log</h3>
+          <div id="incidentList">
+            <p class="log-placeholder">No incidents yet</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT: Report & Instructions (IDLE STATE VISIBLE) -->
+      <section id="resultBox" class="analysis">
+
+        <!-- Risk Gauge -->
+        <div class="risk-gauge">
+          <div class="gauge-bar">
+            <div
+              class="gauge-pointer"
+              id="gaugePointer"
+              style="left: 50%;"
+            ></div>
+          </div>
+          <div class="gauge-labels">
+            <span class="safe-text">SAFE</span>
+            <span class="suspicious-text">SUSPICIOUS</span>
+            <span class="danger-text">DANGEROUS</span>
+          </div>
+        </div>
+
+        <h2>Risk Analysis Report</h2>
+
+        <div id="riskBadge">Not analyzed yet</div>
+
+        <div class="result-grid">
+          <div>
+            <small>Attack Type</small>
+            <p id="attackType">—</p>
+          </div>
+          <div>
+            <small>Risk Score</small>
+            <p id="riskScore">—</p>
+          </div>
+        </div>
+
+        <div class="reason">
+          <strong>Analysis</strong>
+          <p id="reasonText">
+            Paste a message on the left and click “Analyze Risk” to see the assessment.
+          </p>
+        </div>
+
+        <div class="action">
+          <strong>Recommended Action</strong>
+          <p id="actionText">
+            No action required yet.
+          </p>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
