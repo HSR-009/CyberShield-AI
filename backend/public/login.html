@@ -210,7 +210,7 @@
       });
 
       if (res.ok) {
-        window.location.href = "/";
+        window.location.href = "/dashboard";
       } else {
         document.getElementById("error").innerText = "Authentication failed";
       }
@@ -218,9 +218,10 @@
 
     async function guest() {
       await fetch("/api/guest", { method: "POST" });
-      window.location.href = "/";
+      window.location.href = "/dashboard";
     }
   </script>
 
 </body>
 </html>
+
