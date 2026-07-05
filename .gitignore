@@ -1,0 +1,4 @@
+backend/users.json
+backend/logs/
+node_modules/
+.env
