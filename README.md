@@ -1,80 +1,54 @@
-# 🛡️ CyberShield AI
+# CyberShield AI — Scam & Fraud Risk Analyzer
 
-CyberShield AI is an intelligent message-analysis tool designed to help users identify potential scam messages before taking action.  
-It uses **AI-guided, rule-based security logic** to interpret message content, assess risk, and provide clear safety recommendations.
+## 📌 Description
 
-The project focuses on **accuracy, explainability, and low false positives**, making it suitable for awareness, demos, and real-world usage scenarios.
+CyberShield AI is a full-stack web app that scores user-submitted messages (SMS, email, chat) for scam/fraud risk. Instead of a single keyword blocklist, it uses a rule-based, multi-category detection engine that recognizes patterns like authority impersonation, fake bank alerts, lottery scams, and OTP phishing — and tells the difference between a message that merely *mentions* an OTP and one that's actively trying to phish it.
 
----
+## 🛠️ Features
 
-## ✨ Features
+- **Multi-category detection engine** — scores messages across categories (authority impersonation, bank alerts, lottery scams, OTP phishing, etc.) rather than relying on a single flat rule set.
+- **Context-aware scoring** — escalates risk severity based on keyword *co-occurrence*, so an informational OTP message ("Your OTP is 1234, do not share it") isn't flagged the same way as an active phishing attempt asking the user to share that OTP.
+- **Authentication** — JWT-based auth with bcrypt password hashing and HTTP-only cookie sessions; a guest mode is available for trying the tool without an account.
+- **Access control** — the analysis dashboard is protected from unauthenticated access at the routing level, not just hidden in the UI.
+- **Per-user history** — every analyzed message is logged per user, with a dashboard to review past messages alongside their computed risk scores.
 
-- 🔍 **Context-aware scam detection**
-- 🧠 **AI-guided rule engine** (explainable logic, not a black box)
-- 🚨 Detects high-risk scam patterns such as:
-  - Authority impersonation (police, courts, legal threats)
-  - Bank & payment scams
-  - OTP misuse
-  - Lottery & reward fraud
-  - Phishing links
-  - Job & work-from-home scams
-- 🎯 **Risk scoring system (0–100)** with clear severity levels
-- 📊 Visual risk gauge & colored indicators
-- 🧾 Incident log with severity-based highlighting
-- 🔐 **Privacy-friendly**: messages are analyzed instantly and not stored
+## 🧱 Tech Stack
 
----
+Node.js · Express · JWT · bcrypt · HTML/CSS/JS
 
-## 🧠 How CyberShield AI Works
+## ⚙️ How It Works
 
-CyberShield AI analyzes message text using a **rule-based intelligence engine enhanced with AI-style pattern interpretation**.
+1. A user submits a message (pasted text) through the web UI.
+2. The backend runs the message through the detection engine, which checks for category-specific keyword patterns and their co-occurrence.
+3. A risk score is computed based on which categories matched and how strongly, distinguishing informational mentions from active phishing language.
+4. The result — score, matched category, and a short explanation — is returned to the UI and logged against the user's account for later review.
 
-Instead of relying only on keywords, it evaluates:
-- **Context** (e.g., OTP for login vs OTP for payment)
-- **Intent** (informational vs demanding action)
-- **Combinations of signals** (authority + urgency + link)
-- **Real-world legitimacy rules** (how banks, delivery services, and authorities actually communicate)
+## 🚀 Usage
 
-Each message is classified into:
-- **Safe**
-- **Suspicious**
-- **High Risk**
-- **Critical Scam**
+> Adjust paths/commands below to match your actual entrypoint and env variable names in the repo.
 
-Along with:
-- A **risk score**
-- A **clear explanation**
-- A **recommended action**
-
----
-
-## 🎨 User Interface Highlights
-
-- Light-rich, security-themed design
-- Clear visual hierarchy for risk severity
-- Color-aligned UI (score, gauge, logs, and recommendations always match)
-- Info tooltip explaining the system for transparency
-
----
-
-## 🧪 Example Scenarios Detected
-
-| Message Type | Result |
-|-------------|--------|
-| Bank login OTP | Safe (if user initiated) |
-| Delivery OTP | Safe (conditional) |
-| Lottery win message | Always suspicious or dangerous |
-| Bank asking for OTP | Critical scam |
-| Bank asking for documents via link | Suspicious |
-| Job asking for payment | Scam |
-| Authority threatening arrest | Critical scam |
-
----
-
-## 🚀 Getting Started
-
-### 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/your-username/cybershield-ai.git
-cd cybershield-ai
-# CyberShield-AI
+# 1. Clone the repo
+git clone https://github.com/HSR-009/CyberShield-AI.git
+cd CyberShield-AI
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment variables (JWT secret, port, etc.)
+cp .env.example .env
+# edit .env with your values
+
+# 4. Run the server
+npm start
+```
+
+Then open `http://localhost:3000` (or your configured port) in the browser. Use guest mode to try it without creating an account, or sign up to save your analysis history.
+
+## Website's URL
+
+https://cybershield-ai-c47m.onrender.com/
+
+## 🔒 Notes
+
+This is a learning/portfolio project demonstrating rule-based fraud detection and secure auth patterns. Detection is heuristic/rule-based (not ML-based), so it should be treated as a proof of concept rather than production-grade fraud detection.
